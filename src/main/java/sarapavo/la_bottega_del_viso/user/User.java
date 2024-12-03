@@ -12,7 +12,7 @@ public abstract class User {
     public User() {
     }
 
-    public User(Role role, String password, String email, String surname, String name) {
+    public User(String password, String email, String surname, String name) {
         this.role = role;
         this.password = password;
         this.email = email;
