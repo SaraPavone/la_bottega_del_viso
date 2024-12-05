@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sarapavo.la_bottega_del_viso.customer.CustomerService;
 import sarapavo.la_bottega_del_viso.exceptions.UnauthorizedException;
 import sarapavo.la_bottega_del_viso.tools.JWT;
 import sarapavo.la_bottega_del_viso.user.User;
@@ -27,8 +26,7 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
     private JWT jwt;
     @Autowired
     private UserService userService;
-    @Autowired
-    private CustomerService customerService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -43,7 +41,7 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
 
             //autorizzazione
             String userId = jwt.getIdFromToken(accessToken);
-            Long userIdLong = Long.parseLong(userId); // Convert String to Long
+            Long userIdLong = Long.parseLong(userId);
             User currentUser = this.userService.findById(userIdLong);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
