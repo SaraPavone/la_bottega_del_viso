@@ -34,6 +34,7 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer "))
             throw new UnauthorizedException("Inserire token nell'Authorization Header nel formato corretto!");
 
+        //elimina i primi 7 caratteri "Bearer "
         String accessToken = authHeader.substring(7);
 
         try {
@@ -57,7 +58,7 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return new AntPathMatcher().match("/auth/register/**", request.getServletPath());
+        return new AntPathMatcher().match("/auth/**", request.getServletPath());
     }
 
 }

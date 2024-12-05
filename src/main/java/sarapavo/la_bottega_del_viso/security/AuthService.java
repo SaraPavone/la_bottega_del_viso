@@ -25,6 +25,7 @@ public class AuthService {
     @Autowired
     private UserService userService;
 
+
     public String checkCredentialsAndGenerateToken(LoginDTO body) {
         User found = this.userService.findByEmail(body.email());
         if (found == null) {
@@ -34,8 +35,7 @@ public class AuthService {
 
         if (bcrypt.matches(body.password(), found.getPassword())) {
             logger.info("Autenticazione riuscita per email: {}", body.email());
-            String accessToken = jwt.createToken(found);
-            return accessToken;
+            return jwt.createToken(found);
         } else {
             logger.warn("Autenticazione fallita per email: {} - password errata", body.email());
             throw new UnauthorizedException("Credenziali errate!");

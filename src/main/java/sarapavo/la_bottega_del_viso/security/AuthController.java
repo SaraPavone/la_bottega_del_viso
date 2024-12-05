@@ -20,6 +20,11 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @PostMapping("/login")
+    public LoginResponseDTO login(@RequestBody LoginDTO body) {
+        return new LoginResponseDTO(this.authService.checkCredentialsAndGenerateToken(body));
+    }
+
 
     @PostMapping("/register/user")
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,14 +35,7 @@ public class AuthController {
             throw new BadRequestException("Ci sono stati errori nel payload! " + message);
         }
 
-        User newUser = new User(body.name(), body.surname(), body.birthDate(), body.email(), body.password());
-        return this.userService.save(newUser);
-    }
-
-
-    @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody LoginDTO body) {
-        return new LoginResponseDTO(this.authService.checkCredentialsAndGenerateToken(body));
+        return this.userService.save(body);
     }
 
 

@@ -38,7 +38,7 @@ public class User {
         this.birthDate = birthDate;
         this.email = email;
         this.password = password;
-        this.role = Role.CUSTOMER;
+        this.role = Role.USER;
     }
 
 
