@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sarapavo.la_bottega_del_viso.exceptions.UnauthorizedException;
+import sarapavo.la_bottega_del_viso.login.LoginDTO;
 import sarapavo.la_bottega_del_viso.tools.JWT;
-import sarapavo.la_bottega_del_viso.user.LoginDTO;
 import sarapavo.la_bottega_del_viso.user.User;
 import sarapavo.la_bottega_del_viso.user.UserService;
 

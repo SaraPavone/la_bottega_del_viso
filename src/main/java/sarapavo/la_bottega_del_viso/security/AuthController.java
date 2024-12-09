@@ -7,7 +7,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sarapavo.la_bottega_del_viso.exceptions.BadRequestException;
-import sarapavo.la_bottega_del_viso.user.*;
+import sarapavo.la_bottega_del_viso.login.LoginDTO;
+import sarapavo.la_bottega_del_viso.login.LoginResponseDTO;
+import sarapavo.la_bottega_del_viso.user.NewUserDTO;
+import sarapavo.la_bottega_del_viso.user.User;
+import sarapavo.la_bottega_del_viso.user.UserService;
 
 import java.util.stream.Collectors;
 

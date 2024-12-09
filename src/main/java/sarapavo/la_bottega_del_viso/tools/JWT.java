@@ -8,6 +8,7 @@ import sarapavo.la_bottega_del_viso.exceptions.UnauthorizedException;
 import sarapavo.la_bottega_del_viso.user.User;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JWT {
@@ -19,6 +20,7 @@ public class JWT {
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .subject(String.valueOf(user.getId()))
+                .claim("roles", user.getRole())
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }
@@ -37,6 +39,11 @@ public class JWT {
     public String getIdFromToken(String accessToken) {
         return Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.getBytes())).build().parseSignedClaims(accessToken)
                 .getPayload().getSubject();
+    }
+
+    public List<String> getRolesFromToken(String accessToken) {
+        return Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.getBytes())).build().parseSignedClaims(accessToken)
+                .getPayload().get("roles", List.class).stream().map(Object::toString).toList();
     }
 
 }

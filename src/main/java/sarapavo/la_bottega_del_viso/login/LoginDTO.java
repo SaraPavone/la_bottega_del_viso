@@ -1,4 +1,4 @@
-package sarapavo.la_bottega_del_viso.user;
+package sarapavo.la_bottega_del_viso.login;
 
 import jakarta.validation.constraints.NotNull;
 
