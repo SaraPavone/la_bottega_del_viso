@@ -1,7 +1,8 @@
 package sarapavo.la_bottega_del_viso.salonServices;
 
 
-import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,11 +12,24 @@ import org.springframework.stereotype.Service;
 import sarapavo.la_bottega_del_viso.exceptions.BadRequestException;
 import sarapavo.la_bottega_del_viso.exceptions.NotFoundException;
 
+
 @Service
 public class ServiceService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServiceService.class);
     @Autowired
     private ServiceRepository serviceRepository;
+
+    public SalonService save(NewSalonServiceDTO body) {
+        this.serviceRepository.findByTitle(body.title()).ifPresent(
+                service -> {
+                    throw new BadRequestException("Titolo " + body.title() + " già in uso!");
+                }
+        );
+        SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
+
+        return this.serviceRepository.save(newSalonService);
+    }
 
     public Page<SalonService> findAll(int page, int size, String sortBy) {
         try {
@@ -37,17 +51,19 @@ public class ServiceService {
 
     }
 
-    @Transactional
-    public SalonService save(NewSalonServiceDTO body) {
-        try {
-            SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
-            System.out.println("Salvataggio: " + newSalonService);
-            return this.serviceRepository.save(newSalonService);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BadRequestException("Errore nel salvataggio del trattamento: " + e.getMessage());
-        }
-    }
+//    @Transactional
+//    public SalonService save(NewSalonServiceDTO body) {
+//        try {
+//            logger.debug("Tentativo di salvataggio: {}", body);
+//            SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
+//            SalonService savedService = this.serviceRepository.save(newSalonService);
+//            logger.debug("Salvataggio completato: {}", savedService);
+//            return savedService;
+//        } catch (Exception e) {
+//            logger.error("Errore durante il salvataggio: {}", e.getMessage(), e);
+//            throw new BadRequestException("Errore nel salvataggio del trattamento: " + e.getMessage());
+//        }
+//    }
 
     public SalonService findById(Long id) {
         try {

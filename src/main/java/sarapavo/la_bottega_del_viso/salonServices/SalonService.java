@@ -12,13 +12,17 @@ public class SalonService {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     @NotBlank(message = "Il titolo non può essere vuoto")
     private String title;
+    @Column(nullable = false)
     @NotBlank(message = "La descrizione non può essere vuota")
     private String description;
+    @Column(nullable = false)
     @NotNull(message = "La durata non può essere nulla")
     @Positive(message = "La durata deve essere maggiore di zero")
     private String duration;
+    @Column(nullable = false)
     @NotNull(message = "Il prezzo non può essere nullo")
     @Positive(message = "Il prezzo deve essere maggiore di zero")
     private Double price;
