@@ -11,6 +11,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sarapavo.la_bottega_del_viso.exceptions.BadRequestException;
 import sarapavo.la_bottega_del_viso.exceptions.NotFoundException;
+import sarapavo.la_bottega_del_viso.reservation.ReservationRepository;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 
 @Service
@@ -19,6 +23,9 @@ public class ServiceService {
     private static final Logger logger = LoggerFactory.getLogger(ServiceService.class);
     @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     public SalonService save(NewSalonServiceDTO body) {
         this.serviceRepository.findByTitle(body.title()).ifPresent(
@@ -29,6 +36,10 @@ public class ServiceService {
         SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
 
         return this.serviceRepository.save(newSalonService);
+    }
+
+    public boolean isReservationExists(LocalDate date, LocalTime time) {
+        return reservationRepository.existsByDateAndTime(date, time);
     }
 
     public Page<SalonService> findAll(int page, int size, String sortBy) {

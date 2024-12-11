@@ -23,6 +23,7 @@ public class ServiceController {
     @Autowired
     private ServiceService serviceService;
 
+
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public Page<SalonService> findAll(

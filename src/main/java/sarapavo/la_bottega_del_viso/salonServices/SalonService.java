@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import sarapavo.la_bottega_del_viso.reservation.Reservation;
 
 @Entity
 @Table(name = "salon_services")
@@ -26,6 +27,9 @@ public class SalonService {
     @NotNull(message = "Il prezzo non può essere nullo")
     @Positive(message = "Il prezzo deve essere maggiore di zero")
     private Double price;
+
+    @OneToMany(mappedBy = "salonService")
+    private java.util.List<Reservation> reservations;
 
     public SalonService() {
     }

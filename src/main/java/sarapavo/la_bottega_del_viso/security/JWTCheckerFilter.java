@@ -5,11 +5,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -20,54 +19,43 @@ import sarapavo.la_bottega_del_viso.user.User;
 import sarapavo.la_bottega_del_viso.user.UserService;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JWTCheckerFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWT jwt;
+
     @Autowired
     private UserService userService;
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            //elimina i primi 7 caratteri "Bearer "
-            String accessToken = authHeader.substring(7);
-            try {
-                jwt.verifyToken(accessToken);
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
+            throw new UnauthorizedException("Inserire token nell' Authorization Header nel formato corretto !");
+        String accessToken = authorizationHeader.split(" ")[1];
+        jwt.verifyToken(accessToken);
 
-                //autorizzazione
-                String userId = jwt.getIdFromToken(accessToken);
-                Long userIdLong = Long.parseLong(userId);
-                User currentUser = this.userService.findById(userIdLong);
+        Long idUtente = Long.parseLong(jwt.getIdFromToken(accessToken));
+        User utenteCorrente = this.userService.findById(idUtente);
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(utenteCorrente, null, utenteCorrente.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                List<String> roles = jwt.getRolesFromToken(accessToken);
-                Collection<GrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-                Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                filterChain.doFilter(request, response);
-
-            } catch (Exception e) {
-                throw new UnauthorizedException("Token non valido");
-            }
-        }
-
+        filterChain.doFilter(request, response);
     }
+
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return new AntPathMatcher().match("/auth/**", request.getServletPath());
+        AntPathMatcher apm = new AntPathMatcher();
+        List<String> paths = Arrays.asList("/auth/**", "/swagger-ui/**", "/v3/api-docs/**");
+        return paths.stream().anyMatch(path -> apm.match(path, request.getServletPath()));
     }
 
 }
+

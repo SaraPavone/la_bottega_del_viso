@@ -4,6 +4,7 @@ package sarapavo.la_bottega_del_viso.user;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import sarapavo.la_bottega_del_viso.reservation.Reservation;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -12,10 +13,11 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+    private String fullName;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
     @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "surname", nullable = false)
@@ -29,6 +31,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations;
+
     public User() {
     }
 
@@ -39,11 +44,12 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = Role.USER;
+        this.fullName = name + " " + surname;
     }
 
 
     public Long getId() {
-        return id;
+        return userId;
     }
 
     public String getName() {
@@ -101,7 +107,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
+                "id=" + userId +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", birthDate=" + birthDate +
