@@ -1,8 +1,6 @@
 package sarapavo.la_bottega_del_viso.salonServices;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,11 +16,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/services")
 public class ServiceController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceController.class);
-
     @Autowired
     private ServiceService serviceService;
 
+    @PostMapping("/save")
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SalonService save(@RequestBody @Validated NewSalonServiceDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            String message = validationResult.getAllErrors().stream().map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.joining(". "));
+            throw new BadRequestException("Ci sono stati errori nel payload! " + message);
+        }
+
+        return this.serviceService.save(body);
+    }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
@@ -42,34 +50,6 @@ public class ServiceController {
     public SalonService findByTitle(@RequestParam String title) {
         return this.serviceService.findByTitle(title);
     }
-
-    @PostMapping("/save")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @ResponseStatus(HttpStatus.CREATED)
-    public SalonService save(@RequestBody @Validated NewSalonServiceDTO body, BindingResult validationResult) {
-        if (validationResult.hasErrors()) {
-            String message = validationResult.getAllErrors().stream().map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.joining(". "));
-            throw new BadRequestException("Ci sono stati errori nel payload! " + message);
-        }
-
-        return this.serviceService.save(body);
-    }
-
-//    @PostMapping("/save")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ResponseEntity<?> save(@RequestBody @Valid NewSalonServiceDTO body) {
-//        logger.debug("Dati ricevuti nel controller: {}", body);
-//        try {
-//            SalonService savedService = this.serviceService.save(body);
-//            logger.debug("Trattamento salvato con successo: {}", savedService);
-//            return ResponseEntity.status(HttpStatus.CREATED).body(savedService);
-//        } catch (Exception e) {
-//            logger.error("Errore nel controller durante il salvataggio: {}", e.getMessage(), e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno del server: " + e.getMessage());
-//        }
-//    }
 
     @PutMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN')")

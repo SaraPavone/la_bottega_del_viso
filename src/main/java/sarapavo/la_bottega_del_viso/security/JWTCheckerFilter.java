@@ -1,11 +1,9 @@
 package sarapavo.la_bottega_del_viso.security;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,43 +17,44 @@ import sarapavo.la_bottega_del_viso.user.User;
 import sarapavo.la_bottega_del_viso.user.UserService;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class JWTCheckerFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWT jwt;
-
     @Autowired
     private UserService userService;
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
-            throw new UnauthorizedException("Inserire token nell' Authorization Header nel formato corretto !");
-        String accessToken = authorizationHeader.split(" ")[1];
-        jwt.verifyToken(accessToken);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        Long idUtente = Long.parseLong(jwt.getIdFromToken(accessToken));
-        User utenteCorrente = this.userService.findById(idUtente);
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+            throw new UnauthorizedException("Inserire token nell'Authorization Header nel formato corretto!");
+        {
+            //elimina i primi 7 caratteri "Bearer "
+            String accessToken = authHeader.substring(7);
+            jwt.verifyToken(accessToken);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(utenteCorrente, null, utenteCorrente.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            //autorizzazione
+            String userId = jwt.getIdFromToken(accessToken);
+            Long userIdLong = Long.parseLong(userId);
+            User currentUser = this.userService.findById(userIdLong);
 
-        filterChain.doFilter(request, response);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            filterChain.doFilter(request, response);
+        }
+
     }
-
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        AntPathMatcher apm = new AntPathMatcher();
-        List<String> paths = Arrays.asList("/auth/**", "/swagger-ui/**", "/v3/api-docs/**");
-        return paths.stream().anyMatch(path -> apm.match(path, request.getServletPath()));
+        return new AntPathMatcher().match("/auth/**", request.getServletPath());
     }
 
 }
-

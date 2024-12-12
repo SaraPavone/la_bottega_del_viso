@@ -6,7 +6,7 @@ import sarapavo.la_bottega_del_viso.salonServices.SalonService;
 import sarapavo.la_bottega_del_viso.user.User;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,14 +14,16 @@ import java.util.List;
 @Table(name = "reservations")
 public class Reservation {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate reservationDate;
-    private LocalDateTime appointmentDateTime;
 
+    private LocalDate appointmentDate;
+    private LocalTime appointmentTime;
+    private int duration;
+    private String notes;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
     @ManyToOne
@@ -36,45 +38,92 @@ public class Reservation {
     )
     private List<SalonService> salonServices = new ArrayList<>();
 
+
     public Reservation() {
     }
 
-    public Reservation(User user, SalonService salonService, int year, int month, int day, int hour, int minute) {
-        this.reservationDate = LocalDate.now();
-        this.appointmentDateTime = LocalDateTime.of(year, month, day, hour, minute, 0);
+    public Reservation(LocalDate appointmentDate, LocalTime appointmentTime, int duration, String notes, User user, SalonService salonService, List<SalonService> salonServices) {
+        this.appointmentDate = appointmentDate;
+        this.appointmentTime = appointmentTime;
+        this.duration = duration;
+        this.notes = notes;
         this.user = user;
         this.salonService = salonService;
+        this.salonServices = salonServices;
     }
 
     public Long getId() {
         return id;
     }
 
-    public LocalDate getReservationDate() {
-        return reservationDate;
+    public LocalDate getAppointmentDate() {
+        return appointmentDate;
     }
 
-    public void setReservationDate(LocalDate reservationDate) {
-        this.reservationDate = reservationDate;
+    public void setAppointmentDate(LocalDate appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
 
-    public LocalDateTime getAppointmentDateTime() {
-        return appointmentDateTime;
+    public LocalTime getAppointmentTime() {
+        return appointmentTime;
     }
 
-    public void setAppointmentDateTime(LocalDateTime appointmentDateTime) {
-        this.appointmentDateTime = appointmentDateTime;
+    public void setAppointmentTime(LocalTime appointmentTime) {
+        this.appointmentTime = appointmentTime;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public SalonService getSalonService() {
+        return salonService;
+    }
+
+    public void setSalonService(SalonService salonService) {
+        this.salonService = salonService;
+    }
+
+    public List<SalonService> getSalonServices() {
+        return salonServices;
+    }
+
+    public void setSalonServices(List<SalonService> salonServices) {
+        this.salonServices = salonServices;
     }
 
     @Override
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
-                ", reservationDate=" + reservationDate +
-                ", appointmentDateTime=" + appointmentDateTime +
+                ", appointmentDate=" + appointmentDate +
+                ", appointmentTime=" + appointmentTime +
+                ", duration=" + duration +
+                ", notes='" + notes + '\'' +
                 ", user=" + user +
                 ", salonService=" + salonService +
-                ", services=" + salonServices +
+                ", salonServices=" + salonServices +
                 '}';
     }
 }
+

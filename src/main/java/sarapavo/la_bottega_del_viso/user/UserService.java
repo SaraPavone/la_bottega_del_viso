@@ -20,8 +20,17 @@ public class UserService {
     private PasswordEncoder bcrypt;
 
 
+    public User findById(Long userId) {
+        return this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException(userId));
+    }
+
+    public User findByEmail(String email) {
+        return this.userRepository.findOneByEmail(email).orElseThrow(() -> new NotFoundException("L'utente con email " + email + " non è stato trovato"));
+    }
+
+
     public User save(NewUserDTO body) {
-        this.userRepository.findByEmail(body.email()).ifPresent(
+        this.userRepository.findOneByEmail(body.email()).ifPresent(
                 user -> {
                     throw new BadRequestException("Email " + body.email() + " già in uso!");
                 }
@@ -39,9 +48,6 @@ public class UserService {
         return this.userRepository.findAll(pageable);
     }
 
-    public User findById(Long userId) {
-        return this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException(userId));
-    }
 
     public User findByIdAndUpdate(Long userId, NewUserDTO body) {
 
@@ -49,7 +55,7 @@ public class UserService {
 
 
         if (!found.getEmail().equals(body.email())) {
-            this.userRepository.findByEmail(body.email()).ifPresent(
+            this.userRepository.findOneByEmail(body.email()).ifPresent(
 
                     user -> {
                         throw new BadRequestException("Email " + body.email() + " già in uso!");
@@ -72,9 +78,6 @@ public class UserService {
         this.userRepository.delete(found);
     }
 
-    public User findByEmail(String email) {
-        return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("L'utente con email " + email + " non è stato trovato"));
-    }
 
     public User findByNameAndSurname(String name, String surname) {
         return this.userRepository.findByNameAndSurname(name, surname).orElseThrow(() -> new NotFoundException("L'utente con nome " + name + " e cognome " + surname + " non é stato trovato"));

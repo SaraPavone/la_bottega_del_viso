@@ -1,8 +1,6 @@
 package sarapavo.la_bottega_del_viso.salonServices;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,14 +11,10 @@ import sarapavo.la_bottega_del_viso.exceptions.BadRequestException;
 import sarapavo.la_bottega_del_viso.exceptions.NotFoundException;
 import sarapavo.la_bottega_del_viso.reservation.ReservationRepository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 
 @Service
 public class ServiceService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceService.class);
     @Autowired
     private ServiceRepository serviceRepository;
 
@@ -34,13 +28,14 @@ public class ServiceService {
                 }
         );
         SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
-
         return this.serviceRepository.save(newSalonService);
+
+
     }
 
-    public boolean isReservationExists(LocalDate date, LocalTime time) {
-        return reservationRepository.existsByDateAndTime(date, time);
-    }
+//    public boolean isReservationExists(LocalDate date, LocalTime time) {
+//        return reservationRepository.existsByDateAndTime(date, time);
+//    }
 
     public Page<SalonService> findAll(int page, int size, String sortBy) {
         try {
@@ -62,20 +57,7 @@ public class ServiceService {
 
     }
 
-//    @Transactional
-//    public SalonService save(NewSalonServiceDTO body) {
-//        try {
-//            logger.debug("Tentativo di salvataggio: {}", body);
-//            SalonService newSalonService = new SalonService(body.title(), body.description(), body.duration(), body.price());
-//            SalonService savedService = this.serviceRepository.save(newSalonService);
-//            logger.debug("Salvataggio completato: {}", savedService);
-//            return savedService;
-//        } catch (Exception e) {
-//            logger.error("Errore durante il salvataggio: {}", e.getMessage(), e);
-//            throw new BadRequestException("Errore nel salvataggio del trattamento: " + e.getMessage());
-//        }
-//    }
-
+    
     public SalonService findById(Long id) {
         try {
             return this.serviceRepository.findById(id).orElseThrow(() -> new NotFoundException("Il trattamento con id " + id + " non é stato trovato"));

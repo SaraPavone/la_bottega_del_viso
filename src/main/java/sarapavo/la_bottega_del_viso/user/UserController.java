@@ -10,17 +10,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sarapavo.la_bottega_del_viso.exceptions.BadRequestException;
-import sarapavo.la_bottega_del_viso.security.AuthService;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = {"*"})
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthService authService;
+
+    @GetMapping("/me")
+    public User getProfile(@AuthenticationPrincipal User currentAuthenticatedUser) {
+        return currentAuthenticatedUser;
+    }
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -29,10 +32,6 @@ public class UserController {
         return this.userService.findAll(page, size, sortBy);
     }
 
-    @GetMapping("/me")
-    public User getProfile(@AuthenticationPrincipal User currentAuthenticatedUser) {
-        return currentAuthenticatedUser;
-    }
 
     @PutMapping("/me")
     public User updateProfile(@AuthenticationPrincipal User currentAuthenticatedUser, @RequestBody @Validated NewUserDTO body) {
@@ -57,7 +56,7 @@ public class UserController {
             validationResult.getAllErrors().forEach(System.out::println);
             throw new BadRequestException("Ci sono stati errori nel payload!");
         }
-    
+
         return this.userService.findByIdAndUpdate(userId, body);
     }
 

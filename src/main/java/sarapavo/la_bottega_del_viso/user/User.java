@@ -11,13 +11,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 public class User {
     private String fullName;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Long id;
     @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "surname", nullable = false)
@@ -49,7 +49,7 @@ public class User {
 
 
     public Long getId() {
-        return userId;
+        return id;
     }
 
     public String getName() {
@@ -107,12 +107,11 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + userId +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", birthDate=" + birthDate +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", role=" + role +
                 '}';
     }
